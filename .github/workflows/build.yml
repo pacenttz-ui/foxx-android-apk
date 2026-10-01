@@ -1,0 +1,35 @@
+name: Build FOXX APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract FOXX project
+        run: |
+          unzip -q FOXX-Android-Studio-Project.zip -d foxx-project
+          find foxx-project -maxdepth 3 -type f | head -50
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build APK
+        working-directory: foxx-project
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FOXX-Android-APK
+          path: foxx-project/app/build/outputs/apk/debug/app-debug.apk
